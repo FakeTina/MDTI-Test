@@ -649,7 +649,7 @@ async function copyResultImage(code, item) {
 function createResultCanvas(code, item) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
-  canvas.height = 1350;
+  canvas.height = 1680;
 
   const ctx = canvas.getContext("2d");
   const ink = "#202322";
@@ -689,11 +689,11 @@ function createResultCanvas(code, item) {
   ctx.textBaseline = "top";
   ctx.fillStyle = "#e8ece3";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  drawDots(ctx, ink);
+  drawDots(ctx);
 
-  drawRoundedBox(ctx, 42, 42, 996, 1266, 24, paper, ink, 6);
+  drawRoundedBox(ctx, 42, 42, 996, 1596, 24, paper, ink, 6);
   ctx.setLineDash([14, 12]);
-  drawRoundedStroke(ctx, 64, 64, 952, 1222, 18, "rgba(32, 35, 34, 0.26)", 3);
+  drawRoundedStroke(ctx, 64, 64, 952, 1552, 18, "rgba(32, 35, 34, 0.26)", 3);
   ctx.setLineDash([]);
 
   drawRoundedBox(ctx, 84, 82, 84, 84, 16, red, ink, 5);
@@ -702,70 +702,68 @@ function createResultCanvas(code, item) {
   drawText(ctx, "MDTI", 194, 116, 62, 1000, ink);
   drawText(ctx, "(MaD-Type-Indicator) 人格测试", 360, 145, 24, 950, muted);
 
-  drawRoundedBox(ctx, 84, 204, 912, 958, 26, cardFill, ink, 6);
+  drawRoundedBox(ctx, 84, 220, 912, 1162, 26, cardFill, ink, 6);
   ctx.fillStyle = accentColor;
-  ctx.fillRect(84, 204, 912, 20);
+  ctx.fillRect(84, 220, 912, 20);
 
-  drawText(ctx, "OOPSLAB RESULT", 124, 252, 24, 1000, softText);
-  drawRoundedBox(ctx, 688, 242, 248, 62, 18, isRare ? yellow : white, ink, 5);
-  drawText(ctx, "已鉴定：有点东西", 716, 260, 25, 1000, ink);
+  drawText(ctx, "OOPSLAB RESULT", 124, 272, 24, 1000, softText);
+  drawRoundedBox(ctx, 688, 258, 248, 62, 18, isRare ? yellow : white, ink, 5);
+  drawText(ctx, "已鉴定：有点东西", 716, 276, 25, 1000, ink);
 
-  drawRoundedBox(ctx, 124, 332, 302, 156, 18, isRare ? white : ink, ink, 5);
-  drawCenteredText(ctx, code, 124, 354, 302, 96, 1000, isRare ? ink : white);
-  drawRoundedBox(ctx, 456, 332, 250, 156, 18, white, ink, 5);
-  drawText(ctx, "样本占比", 486, 356, 24, 1000, muted);
-  drawText(ctx, item.ratio, 486, 394, 58, 1000, ink);
-  drawText(ctx, item.rarity, 486, 456, 22, 950, muted);
+  drawRoundedBox(ctx, 124, 352, 302, 156, 18, isRare ? white : ink, ink, 5);
+  drawCenteredText(ctx, code, 124, 374, 302, 96, 1000, isRare ? ink : white);
+  drawRoundedBox(ctx, 456, 352, 250, 156, 18, white, ink, 5);
+  drawText(ctx, "样本占比", 486, 376, 24, 1000, muted);
+  drawText(ctx, item.ratio, 486, 414, 58, 1000, ink);
+  drawText(ctx, item.rarity, 486, 476, 22, 950, muted);
 
-  const nameSize = fitFontSize(ctx, item.name, 812, 104, 66, 1000);
-  drawText(ctx, item.name, 124, 532, nameSize, 1000, cardText);
-  const oneLinerY = 532 + nameSize * 0.98 + 28;
-  drawWrappedText(ctx, item.oneLiner, 126, oneLinerY, 808, 36, 30, 950, cardText, 2);
+  const nameSize = fitFontSize(ctx, item.name, 812, 96, 62, 1000);
+  drawText(ctx, item.name, 124, 558, nameSize, 1000, cardText);
+  drawWrappedText(ctx, item.oneLiner, 126, 668, 808, 42, 30, 950, cardText, 2);
 
-  drawRoundedBox(ctx, 124, 684, 392, 218, 18, white, ink, 5);
-  drawText(ctx, item.animalIcon, 154, 712, 66, 900, ink);
-  drawText(ctx, item.animalName, 250, 716, 33, 1000, ink);
-  drawText(ctx, "动物画像", 252, 758, 21, 1000, muted);
-  drawWrappedText(ctx, item.animalDesc, 154, 814, 320, 31, 24, 850, ink, 3);
+  drawRoundedBox(ctx, 124, 782, 392, 250, 18, white, ink, 5);
+  drawText(ctx, item.animalIcon, 154, 812, 70, 900, ink);
+  drawText(ctx, item.animalName, 252, 818, 34, 1000, ink);
+  drawText(ctx, "动物画像", 254, 862, 21, 1000, muted);
+  drawWrappedText(ctx, item.animalDesc, 154, 922, 320, 32, 25, 850, ink, 3);
 
-  drawRoundedBox(ctx, 556, 684, 392, 218, 18, white, ink, 5);
-  drawText(ctx, item.plantIcon, 586, 712, 66, 900, ink);
-  drawText(ctx, item.plantName, 682, 716, 33, 1000, ink);
-  drawText(ctx, "植物画像", 684, 758, 21, 1000, muted);
-  drawWrappedText(ctx, item.plantDesc, 586, 814, 320, 31, 24, 850, ink, 3);
+  drawRoundedBox(ctx, 556, 782, 392, 250, 18, white, ink, 5);
+  drawText(ctx, item.plantIcon, 586, 812, 70, 900, ink);
+  drawText(ctx, item.plantName, 684, 818, 34, 1000, ink);
+  drawText(ctx, "植物画像", 686, 862, 21, 1000, muted);
+  drawWrappedText(ctx, item.plantDesc, 586, 922, 320, 32, 25, 850, ink, 3);
 
-  drawShareNote(ctx, 124, 940, 824, "群众锐评", getRoastLine(code), red);
-  drawShareNote(ctx, 124, 1038, 824, "朋友判词", item.friendVerdict, accentColor);
-  drawShareNote(ctx, 124, 1136, 824, item.charmTitle, item.charm, yellow);
+  drawShareNote(ctx, 124, 1072, 824, "群众锐评", getRoastLine(code), red);
+  drawShareNote(ctx, 124, 1172, 824, "朋友判词", item.friendVerdict, accentColor);
+  drawShareNote(ctx, 124, 1272, 824, item.charmTitle, item.charm, yellow);
 
-  drawText(ctx, `我的 MDTI 是 ${code}｜${item.name}`, 84, 1204, 34, 1000, ink);
-  drawWrappedText(ctx, "把这张图发出去，让朋友判断你到底是人格，还是事故现场。", 84, 1254, 760, 30, 23, 850, muted, 2);
-  drawRoundedBox(ctx, 858, 1214, 138, 70, 18, ink, ink, 4);
-  drawCenteredText(ctx, "MDTI", 858, 1230, 138, 34, 1000, white);
-  drawCenteredText(ctx, "OopsLab", 858, 1262, 138, 18, 900, "rgba(255, 253, 248, 0.78)");
+  drawText(ctx, `我的 MDTI 是 ${code}｜${item.name}`, 84, 1444, 34, 1000, ink);
+  drawWrappedText(ctx, "把这张图发出去，让朋友判断你到底是人格，还是事故现场。", 84, 1496, 720, 32, 24, 850, muted, 2);
+  drawRoundedBox(ctx, 858, 1486, 138, 82, 18, ink, ink, 4);
+  drawCenteredText(ctx, "MDTI", 858, 1502, 138, 36, 1000, white);
+  drawCenteredText(ctx, "OopsLab", 858, 1538, 138, 18, 900, "rgba(255, 253, 248, 0.78)");
 
   return canvas;
 }
 
-function drawDots(ctx, color) {
+function drawDots(ctx) {
   ctx.fillStyle = "rgba(32, 35, 34, 0.14)";
-  for (let y = 20; y < 1350; y += 30) {
-    for (let x = 20; x < 1080; x += 30) {
+  for (let y = 20; y < ctx.canvas.height; y += 30) {
+    for (let x = 20; x < ctx.canvas.width; x += 30) {
       ctx.beginPath();
       ctx.arc(x, y, 2.1, 0, Math.PI * 2);
       ctx.fill();
     }
   }
-  ctx.fillStyle = color;
 }
 
 function drawShareNote(ctx, x, y, width, label, text, color) {
   const ink = "#202322";
   const muted = "#626865";
-  drawRoundedBox(ctx, x, y, width, 78, 18, "#fffdf8", ink, 4);
-  drawRoundedBox(ctx, x + 18, y + 18, 118, 42, 999, color, ink, 3);
-  drawCenteredText(ctx, label, x + 18, y + 28, 118, 19, 950, ink);
-  drawWrappedText(ctx, text, x + 160, y + 17, width - 190, 27, 21, 900, muted, 2);
+  drawRoundedBox(ctx, x, y, width, 82, 18, "#fffdf8", ink, 4);
+  drawRoundedBox(ctx, x + 18, y + 20, 132, 42, 999, color, ink, 3);
+  drawCenteredText(ctx, label, x + 18, y + 30, 132, 19, 950, ink);
+  drawWrappedText(ctx, text, x + 176, y + 16, width - 206, 27, 21, 900, muted, 2);
 }
 
 function drawRoundedBox(ctx, x, y, width, height, radius, fill, stroke, lineWidth) {
