@@ -340,7 +340,11 @@ function renderHome() {
       </div>
 
       <div class="hero-copy">
-        <h2>Mad人格测试</h2>
+        <h2 class="hero-title">
+          <span>MDTI</span>
+          <small>(MaD-Type-Indicator)</small>
+          <span>人格测试</span>
+        </h2>
         <p>12 个小场面，测出你脑内小剧场的默认发作方式。别装正常，正常人不会点进来。</p>
       </div>
 
@@ -350,6 +354,7 @@ function renderHome() {
       </div>
 
       <button class="primary-button" id="startButton">开始暴露</button>
+      <p class="privacy-note">不收集个人信息，请放心使用</p>
     </div>
   `;
 
@@ -468,7 +473,7 @@ function renderResult() {
               <em>${item.rarity}</em>
             </div>
           </div>
-          <h2>${item.name}</h2>
+          <h2 class="result-name">${item.name}</h2>
           <p class="one-liner">${item.oneLiner}</p>
           <div class="meme-quote">“这不是性格问题，这是出厂风格。”</div>
 
@@ -518,12 +523,14 @@ function renderResult() {
 
       <div class="action-row">
         <button class="primary-button" id="copyButton">复制结果</button>
+        <button class="secondary-button" id="copyImageButton">复制结果图</button>
         <button class="secondary-button" id="restartButton">再测一次</button>
       </div>
     </div>
   `;
 
   screen.querySelector("#copyButton").addEventListener("click", () => copyResult(shareText));
+  screen.querySelector("#copyImageButton").addEventListener("click", () => copyResultImage(result.code, item));
   screen.querySelector("#restartButton").addEventListener("click", renderHome);
 }
 
@@ -599,6 +606,287 @@ async function copyResult(text) {
   } catch {
     showToast("浏览器不让复制，但截图也很适合传播。");
   }
+}
+
+async function copyResultImage(code, item) {
+  const button = screen.querySelector("#copyImageButton");
+  const originalText = button?.textContent || "复制结果图";
+
+  try {
+    if (button) {
+      button.disabled = true;
+      button.textContent = "生成中";
+    }
+
+    const canvas = createResultCanvas(code, item);
+    const blob = await canvasToBlob(canvas);
+
+    if (navigator.clipboard?.write && window.ClipboardItem) {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        showToast("结果图已复制，去群里投放你的物种证据。");
+        return;
+      } catch {
+        downloadBlob(blob, `MDTI-${code}-${item.name}.png`);
+        showToast("浏览器没放行复制图片，已下载结果图。");
+        return;
+      }
+    }
+
+    downloadBlob(blob, `MDTI-${code}-${item.name}.png`);
+    showToast("浏览器不支持复制图片，已下载结果图。");
+  } catch (error) {
+    console.error(error);
+    showToast("图片复制失败，先用截图保住证据。");
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+}
+
+function createResultCanvas(code, item) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1350;
+
+  const ctx = canvas.getContext("2d");
+  const ink = "#202322";
+  const muted = "#626865";
+  const paper = "#fbfaf3";
+  const white = "#fffdf8";
+  const red = "#ef5b4c";
+  const yellow = "#f0bb3d";
+  const palette = {
+    blue: "#e8f0ff",
+    green: "#e5f3ec",
+    navy: "#e8ecf7",
+    yellow: "#fff3c9",
+    red: "#ffe4df",
+    orange: "#ffe8d2",
+    purple: "#f0e7ff",
+    teal: "#dcf5f4",
+    rare: ink,
+  };
+  const accent = {
+    blue: "#3f78d8",
+    green: "#2e8b68",
+    navy: "#425171",
+    yellow: "#f0bb3d",
+    red: "#ef5b4c",
+    orange: "#ed8a35",
+    purple: "#8b65c9",
+    teal: "#1c8b8f",
+    rare: "#f0bb3d",
+  };
+  const cardFill = palette[item.color] || palette.blue;
+  const accentColor = accent[item.color] || accent.blue;
+  const isRare = Boolean(item.rare);
+  const cardText = isRare ? white : ink;
+  const softText = isRare ? "rgba(255, 253, 248, 0.78)" : muted;
+
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#e8ece3";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawDots(ctx, ink);
+
+  drawRoundedBox(ctx, 42, 42, 996, 1266, 24, paper, ink, 6);
+  ctx.setLineDash([14, 12]);
+  drawRoundedStroke(ctx, 64, 64, 952, 1222, 18, "rgba(32, 35, 34, 0.26)", 3);
+  ctx.setLineDash([]);
+
+  drawRoundedBox(ctx, 84, 82, 84, 84, 16, red, ink, 5);
+  drawText(ctx, "M", 111, 98, 52, 1000, white);
+  drawText(ctx, "OopsLab", 196, 82, 28, 1000, muted);
+  drawText(ctx, "MDTI", 194, 116, 62, 1000, ink);
+  drawText(ctx, "(MaD-Type-Indicator) 人格测试", 360, 145, 24, 950, muted);
+
+  drawRoundedBox(ctx, 84, 204, 912, 958, 26, cardFill, ink, 6);
+  ctx.fillStyle = accentColor;
+  ctx.fillRect(84, 204, 912, 20);
+
+  drawText(ctx, "OOPSLAB RESULT", 124, 252, 24, 1000, softText);
+  drawRoundedBox(ctx, 688, 242, 248, 62, 18, isRare ? yellow : white, ink, 5);
+  drawText(ctx, "已鉴定：有点东西", 716, 260, 25, 1000, ink);
+
+  drawRoundedBox(ctx, 124, 332, 302, 156, 18, isRare ? white : ink, ink, 5);
+  drawCenteredText(ctx, code, 124, 354, 302, 96, 1000, isRare ? ink : white);
+  drawRoundedBox(ctx, 456, 332, 250, 156, 18, white, ink, 5);
+  drawText(ctx, "样本占比", 486, 356, 24, 1000, muted);
+  drawText(ctx, item.ratio, 486, 394, 58, 1000, ink);
+  drawText(ctx, item.rarity, 486, 456, 22, 950, muted);
+
+  const nameSize = fitFontSize(ctx, item.name, 812, 104, 66, 1000);
+  drawText(ctx, item.name, 124, 532, nameSize, 1000, cardText);
+  const oneLinerY = 532 + nameSize * 0.98 + 28;
+  drawWrappedText(ctx, item.oneLiner, 126, oneLinerY, 808, 36, 30, 950, cardText, 2);
+
+  drawRoundedBox(ctx, 124, 684, 392, 218, 18, white, ink, 5);
+  drawText(ctx, item.animalIcon, 154, 712, 66, 900, ink);
+  drawText(ctx, item.animalName, 250, 716, 33, 1000, ink);
+  drawText(ctx, "动物画像", 252, 758, 21, 1000, muted);
+  drawWrappedText(ctx, item.animalDesc, 154, 814, 320, 31, 24, 850, ink, 3);
+
+  drawRoundedBox(ctx, 556, 684, 392, 218, 18, white, ink, 5);
+  drawText(ctx, item.plantIcon, 586, 712, 66, 900, ink);
+  drawText(ctx, item.plantName, 682, 716, 33, 1000, ink);
+  drawText(ctx, "植物画像", 684, 758, 21, 1000, muted);
+  drawWrappedText(ctx, item.plantDesc, 586, 814, 320, 31, 24, 850, ink, 3);
+
+  drawShareNote(ctx, 124, 940, 824, "群众锐评", getRoastLine(code), red);
+  drawShareNote(ctx, 124, 1038, 824, "朋友判词", item.friendVerdict, accentColor);
+  drawShareNote(ctx, 124, 1136, 824, item.charmTitle, item.charm, yellow);
+
+  drawText(ctx, `我的 MDTI 是 ${code}｜${item.name}`, 84, 1204, 34, 1000, ink);
+  drawWrappedText(ctx, "把这张图发出去，让朋友判断你到底是人格，还是事故现场。", 84, 1254, 760, 30, 23, 850, muted, 2);
+  drawRoundedBox(ctx, 858, 1214, 138, 70, 18, ink, ink, 4);
+  drawCenteredText(ctx, "MDTI", 858, 1230, 138, 34, 1000, white);
+  drawCenteredText(ctx, "OopsLab", 858, 1262, 138, 18, 900, "rgba(255, 253, 248, 0.78)");
+
+  return canvas;
+}
+
+function drawDots(ctx, color) {
+  ctx.fillStyle = "rgba(32, 35, 34, 0.14)";
+  for (let y = 20; y < 1350; y += 30) {
+    for (let x = 20; x < 1080; x += 30) {
+      ctx.beginPath();
+      ctx.arc(x, y, 2.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.fillStyle = color;
+}
+
+function drawShareNote(ctx, x, y, width, label, text, color) {
+  const ink = "#202322";
+  const muted = "#626865";
+  drawRoundedBox(ctx, x, y, width, 78, 18, "#fffdf8", ink, 4);
+  drawRoundedBox(ctx, x + 18, y + 18, 118, 42, 999, color, ink, 3);
+  drawCenteredText(ctx, label, x + 18, y + 28, 118, 19, 950, ink);
+  drawWrappedText(ctx, text, x + 160, y + 17, width - 190, 27, 21, 900, muted, 2);
+}
+
+function drawRoundedBox(ctx, x, y, width, height, radius, fill, stroke, lineWidth) {
+  drawRoundedPath(ctx, x, y, width, height, radius);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = stroke;
+  ctx.stroke();
+}
+
+function drawRoundedStroke(ctx, x, y, width, height, radius, stroke, lineWidth) {
+  drawRoundedPath(ctx, x, y, width, height, radius);
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = stroke;
+  ctx.stroke();
+}
+
+function drawRoundedPath(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawText(ctx, text, x, y, size, weight, color) {
+  ctx.font = `${weight} ${size}px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`;
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+}
+
+function drawCenteredText(ctx, text, x, y, width, size, weight, color) {
+  ctx.font = `${weight} ${size}px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.fillText(text, x + width / 2, y);
+  ctx.textAlign = "left";
+}
+
+function fitFontSize(ctx, text, maxWidth, startSize, minSize, weight) {
+  for (let size = startSize; size >= minSize; size -= 2) {
+    ctx.font = `${weight} ${size}px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`;
+    if (ctx.measureText(text).width <= maxWidth) return size;
+  }
+  return minSize;
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, size, weight, color, maxLines) {
+  ctx.font = `${weight} ${size}px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif`;
+  ctx.fillStyle = color;
+
+  const lines = wrapCanvasText(ctx, text, maxWidth);
+  const visibleLines = maxLines ? lines.slice(0, maxLines) : lines;
+
+  if (maxLines && lines.length > maxLines) {
+    visibleLines[visibleLines.length - 1] = trimToWidth(ctx, `${visibleLines[visibleLines.length - 1]}...`, maxWidth);
+  }
+
+  visibleLines.forEach((line, index) => {
+    ctx.fillText(line, x, y + index * lineHeight);
+  });
+
+  return y + visibleLines.length * lineHeight;
+}
+
+function wrapCanvasText(ctx, text, maxWidth) {
+  const chars = Array.from(String(text).replace(/\s+/g, " "));
+  const lines = [];
+  let line = "";
+
+  chars.forEach((char) => {
+    const testLine = line + char;
+    if (line && ctx.measureText(testLine).width > maxWidth) {
+      lines.push(line);
+      line = char.trimStart();
+      return;
+    }
+    line = testLine;
+  });
+
+  if (line) lines.push(line);
+  return lines;
+}
+
+function trimToWidth(ctx, text, maxWidth) {
+  let output = text;
+  while (output.length > 1 && ctx.measureText(output).width > maxWidth) {
+    output = `${output.slice(0, -4)}...`;
+  }
+  return output;
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+        return;
+      }
+      reject(new Error("Canvas export failed."));
+    }, "image/png");
+  });
+}
+
+function downloadBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName.replace(/[\\/:*?"<>|]/g, "-");
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function showToast(message) {
