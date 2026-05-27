@@ -1,5 +1,9 @@
 const screen = document.querySelector("#screen");
 const toast = document.querySelector("#toast");
+const SHARE_URL = "https://faketina.github.io/MDTI-Test/";
+const SAMPLE_STORAGE_KEY = "mdtiSampleStatsV1";
+const STATS_API_BASE = "";
+const STATS_TIMEOUT_MS = 1800;
 
 const codes = {
   LIST: {
@@ -7,6 +11,7 @@ const codes = {
     full: "Lists Instead of Screaming Today",
     ratio: "12.6%",
     rarity: "清单常驻民",
+    stamp: "已鉴定：有点靠谱",
     color: "blue",
     animalIcon: "🦫",
     animalName: "Excel 海狸",
@@ -15,17 +20,20 @@ const codes = {
     plantName: "迷迭香",
     plantDesc: "闻起来很清醒，适合贴在备忘录旁边镇宅。",
     oneLiner: "你相信万物皆可制表，连崩溃也应该有编号。",
-    trigger: "别人说“我乱了”，你会本能地问：乱在哪里？有截图吗？能不能按时间线说？",
+    trigger: "别人说“随便”，你脑内立刻弹出三张表：时间表、责任表、谁背锅表。",
     friendVerdict: "你不像朋友，像一个会说人话的 Notion 模板。",
-    tinyBug: "计划写完的瞬间，你会短暂误以为事情已经解决。",
+    tinyBug: "你会把人生整理得像文件夹，但偶尔忘了自己不是压缩包。",
     charmTitle: "今日驱邪小动作",
-    charm: "只写 3 条，不准合并单元格。幸运物是方格纸，今日忌讳：把文件命名为“最终最终版”。",
+    charmAction: "只写 3 条，不准合并单元格。",
+    luckyItem: "方格纸",
+    dailyTaboo: "把文件命名为“最终最终版”",
   },
   MUTE: {
     name: "省电菩萨",
     full: "Mentally Unavailable To Everyone",
     ratio: "14.1%",
     rarity: "低电量大户",
+    stamp: "已鉴定：有点省电",
     color: "green",
     animalIcon: "🦔",
     animalName: "静音刺猬",
@@ -34,17 +42,20 @@ const codes = {
     plantName: "含羞草",
     plantDesc: "别人一靠近，它就把自己折叠成勿扰模式。",
     oneLiner: "你的社交方式是：人在，但尽量不要被系统检测到。",
-    trigger: "看到“在吗”“来不来”“方便吗”，你会先把手机扣下，让问题自己冷静。",
+    trigger: "看到“在吗”两个字，你的电量会从 72% 直接掉到礼貌待机。",
     friendVerdict: "你不是失联，你是把自己活成了一个加载失败的头像。",
-    tinyBug: "你经常靠沉默躲过小事，然后收获一个更大的解释任务。",
+    tinyBug: "你不是冷漠，你只是把社交音量拧到只剩字幕。",
     charmTitle: "低电量护身符",
-    charm: "预存一句退场词：我今天电量不太行，先撤。幸运物是降噪耳机，今日忌讳：答应“就聊五分钟”。",
+    charmAction: "预存一句退场词：我今天电量不太行，先撤。",
+    luckyItem: "降噪耳机",
+    dailyTaboo: "答应“就聊五分钟”",
   },
   LURK: {
     name: "已读潜艇",
     full: "Looks Until Replying Kills",
     ratio: "10.9%",
     rarity: "深水观察员",
+    stamp: "已鉴定：有点深水",
     color: "navy",
     animalIcon: "🦑",
     animalName: "深海乌贼",
@@ -53,17 +64,20 @@ const codes = {
     plantName: "水培绿萝",
     plantDesc: "安静挂着，但根系知道很多不该知道的东西。",
     oneLiner: "你不是不在线，你只是选择不缴纳发言税。",
-    trigger: "群里开始吵，你会从第一句看到最后一句，但绝不轻易贡献一个标点。",
+    trigger: "群里一有火药味，你不会下场，你会把潜望镜慢慢升起来。",
     friendVerdict: "你是群聊里的监控摄像头：不说话，但存档完整。",
-    tinyBug: "你偶尔说一句“我觉得可以”，大家会先怀疑你被盗号。",
+    tinyBug: "你掌握太多边角料信息，但经常假装自己只是路过。",
     charmTitle: "潜水换气术",
-    charm: "今天在一个群里发一次“收到”。幸运物是透明手机壳，今日忌讳：只看不回还截图给别人分析。",
+    charmAction: "今天在一个群里发一次“收到”。",
+    luckyItem: "透明手机壳",
+    dailyTaboo: "只看不回还截图给别人分析",
   },
   MEME: {
     name: "弹幕祖师",
     full: "Mouth Emits Meme Energy",
     ratio: "13.5%",
     rarity: "梗浓度超标",
+    stamp: "已鉴定：有点好玩",
     color: "yellow",
     animalIcon: "🦜",
     animalName: "梗王鹦鹉",
@@ -72,17 +86,20 @@ const codes = {
     plantName: "爆米花玉米",
     plantDesc: "一受热就噼里啪啦，空气里全是段子味。",
     oneLiner: "任何破事进入你脑子，出来时都带字幕和音效。",
-    trigger: "越尴尬的场面，你越能在三秒内想出一句“这不就是……”",
+    trigger: "空气一尴尬，你的嘴会自动申请成为现场字幕组。",
     friendVerdict: "你不是在生活，你是在给生活做弹幕审核。",
-    tinyBug: "有时候笑点出警太快，共情还在路上堵车。",
+    tinyBug: "你的共情还在加载，梗已经穿鞋出门了。",
     charmTitle: "嘴速封印术",
-    charm: "重要场合先闭嘴 3 秒。幸运物是空白表情包，今日忌讳：把所有沉默都补成梗。",
+    charmAction: "重要场合先闭嘴 3 秒。",
+    luckyItem: "空白表情包",
+    dailyTaboo: "把所有沉默都补成梗",
   },
   SAVE: {
     name: "圆场消防栓",
     full: "Social Awkwardness Volunteer Extinguisher",
     ratio: "10.7%",
     rarity: "人情温控器",
+    stamp: "已鉴定：有点可爱",
     color: "red",
     animalIcon: "🐕",
     animalName: "工牌边牧",
@@ -91,17 +108,20 @@ const codes = {
     plantName: "常春藤",
     plantDesc: "哪里气氛塌了，它就爬过去把墙面糊住。",
     oneLiner: "空气一尴尬，你就开始自动喷水。",
-    trigger: "饭桌突然安静、群里没人接话、朋友快哭了，你会立刻上线补一句。",
+    trigger: "只要有人冷场、破防、掉线，你就会自动打开社交消防栓。",
     friendVerdict: "你是社交场合的创可贴，哪破贴哪，贴完自己过敏。",
-    tinyBug: "你救完所有人，回家才发现自己一直在冒烟。",
+    tinyBug: "你太会接住别人，导致大家忘了你也可能正在漏水。",
     charmTitle: "冷场放生术",
-    charm: "今天允许一次沉默自然死亡。幸运物是一杯温水，今日忌讳：替所有人的嘴善后。",
+    charmAction: "今天允许一次沉默自然死亡。",
+    luckyItem: "一杯温水",
+    dailyTaboo: "替所有人的嘴善后",
   },
   OOPS: {
     name: "天选倒霉蛋",
     full: "Often Orchestrates Personal Slapstick",
     ratio: "8.8%",
     rarity: "剧情体质",
+    stamp: "已鉴定：有点凌乱",
     color: "orange",
     animalIcon: "🦌",
     animalName: "撞门小鹿",
@@ -110,17 +130,20 @@ const codes = {
     plantName: "反扎仙人掌",
     plantDesc: "看起来很硬，实际上经常被自己的刺教育。",
     oneLiner: "你不是倒霉，你是生活的外包编剧。",
-    trigger: "别人坐错车会烦，你坐错车会顺便收获一个三幕式故事。",
+    trigger: "事情一旦出现“应该不会吧”，你就会被剧情抓去当主演。",
     friendVerdict: "你一出门，朋友就开始等后续，因为他们知道剧情会自己上门。",
-    tinyBug: "你有时会为了节目效果，低估事情真的需要处理。",
+    tinyBug: "你经常把小问题演成连续剧，还顺手续订第二季。",
     charmTitle: "防翻车小法事",
-    charm: "出门前默念目的地三遍。幸运物是备用充电线，今日忌讳：说“应该不会有事吧”。",
+    charmAction: "出门前默念目的地三遍。",
+    luckyItem: "备用充电线",
+    dailyTaboo: "说“应该不会有事吧”",
   },
   IDEA: {
     name: "项目孵化怪",
     full: "Imagines Drafts, Evades Action",
     ratio: "11.3%",
     rarity: "项目孵化过度",
+    stamp: "已鉴定：有点东西",
     color: "purple",
     animalIcon: "🐙",
     animalName: "八手章鱼",
@@ -129,17 +152,20 @@ const codes = {
     plantName: "蒲公英",
     plantDesc: "风一吹，48 个项目飘向 48 个未完成文件夹。",
     oneLiner: "你脑子里有 48 个项目，其中 47 个死在取名阶段。",
-    trigger: "看到错单、空铺、朋友失恋、满减规则，你都能闻到商业模式的味道。",
+    trigger: "任何麻烦到你脑子里，都会先被包装成一个没人融资的项目。",
     friendVerdict: "朋友只是问你近况，你却当场孵化了一个没人投资的项目。",
-    tinyBug: "你的项目最完整的部分通常是名字、口号和第一条朋友圈。",
+    tinyBug: "你最稳定的产出是名字、口号、logo 和一个未完成文件夹。",
     charmTitle: "脑洞收摊术",
-    charm: "今天只准养一个点子，其他全部关进停车场。幸运物是便利贴，今日忌讳：半夜注册新账号。",
+    charmAction: "今天只准养一个点子，其他全部关进停车场。",
+    luckyItem: "便利贴",
+    dailyTaboo: "半夜注册新账号",
   },
   CTRL: {
     name: "救火工具人",
     full: "Controls Trouble, Repairs Life",
     ratio: "15.4%",
     rarity: "高频维修工",
+    stamp: "已鉴定：有点能修",
     color: "teal",
     animalIcon: "🐝",
     animalName: "扳手工蜂",
@@ -148,17 +174,20 @@ const codes = {
     plantName: "薄荷",
     plantDesc: "哪里乱长哪里，顺便把空气变得清醒一点。",
     oneLiner: "别人发疯时，你已经戴上隐形安全帽。",
-    trigger: "一出事你会先问：谁、几点、多少钱、最坏到哪、现在能补什么？",
+    trigger: "别人开始尖叫时，你已经在问时间、预算、责任人和兜底方案。",
     friendVerdict: "你太会救火了，大家已经默认你不怕烫。",
-    tinyBug: "你的人生像工具箱，里面有充电宝、纸巾、备用方案和对世界的轻微不信任。",
+    tinyBug: "你不是不慌，你只是习惯把慌张伪装成操作手册。",
     charmTitle: "停修一小时",
-    charm: "今天至少把一个问题原封不动还给它的主人。幸运物是小夹子，今日忌讳：主动接管全世界。",
+    charmAction: "今天至少把一个问题原封不动还给它的主人。",
+    luckyItem: "小夹子",
+    dailyTaboo: "主动接管全世界",
   },
   VOID: {
     name: "离线水母",
     full: "Vanishes Outside Immediate Decisions",
     ratio: "1.8%",
     rarity: "稀有漂浮物",
+    stamp: "已鉴定：有点晕乎",
     color: "rare",
     rare: true,
     animalIcon: "🪼",
@@ -168,11 +197,13 @@ const codes = {
     plantName: "空气凤梨",
     plantDesc: "不沾土也能活，主打一个不解释的悬浮。",
     oneLiner: "你不是反应慢，你像是从另一个频道接收世界。",
-    trigger: "别人还在选 A/B/C/D，你已经开始怀疑这件事为什么一定要参与。",
+    trigger: "别人还在等你表态，你已经从这个频道轻轻漂走了。",
     friendVerdict: "你像一个随机刷新的隐藏事件，没人知道下一秒掉落什么。",
-    tinyBug: "你会突然沉默，又突然说出一句偏得离谱但莫名准确的话。",
+    tinyBug: "你像后台运行的隐藏程序，偶尔弹一句离谱但准确的提示。",
     charmTitle: "落地锚点",
-    charm: "今天找一个具体动作：洗杯子、晒太阳、走 1200 步。幸运物是透明杯，今日忌讳：连续三次说“随便”。",
+    charmAction: "今天找一个具体动作：洗杯子、晒太阳、走 1200 步。",
+    luckyItem: "透明杯",
+    dailyTaboo: "连续三次说“随便”",
   },
 };
 
@@ -182,109 +213,145 @@ const questions = [
   {
     title: "你不小心给朋友发了一个只有你自己懂的怪表情包。",
     options: [
-      { text: "马上补一句：发错了，不是你不配懂，是它还没公测。", code: "SAVE" },
-      { text: "撤回，然后装死，假装刚才是手机在做梦。", code: "MUTE" },
-      { text: "不解释，观察他会不会自己脑补出一套世界观。", code: "LURK" },
-      { text: "顺势宣布这是新表情，要求他尊重小众文化。", code: "MEME" },
+      { text: "立刻撤回，假装手机刚才梦游了。", code: "MUTE" },
+      { text: "不解释，观察他能不能自己悟道。", code: "LURK" },
+      { text: "顺势给它编一套世界观。", code: "IDEA" },
+      { text: "补一句：发错了，但你也可以懂。", code: "SAVE" },
     ],
   },
   {
-    title: "你在朋友圈发了一句很有深意的话，五分钟后觉得太装。",
+    title: "你正认真打字，猫/狗突然踩上键盘，屏幕上出现一串神秘咒语。",
     options: [
-      { text: "删掉，像处理案发现场一样清理痕迹。", code: "MUTE" },
-      { text: "改成自嘲版：刚才被生活偷袭了一下。", code: "MEME" },
-      { text: "补一条解释，把矫情包装成阶段性复盘。", code: "LIST" },
-      { text: "不删，开始盯谁点赞、谁沉默、谁可能看懂了。", code: "LURK" },
-    ],
-  },
-  {
-    title: "群里有人发：“谁方便做个表？很简单。”",
-    options: [
-      { text: "装没看见，但把需求逐字看完，等一个倒霉蛋出现。", code: "LURK" },
-      { text: "问字段、格式、截止时间，先把锅的形状画清楚。", code: "CTRL" },
-      { text: "说“我来吧”，发送瞬间已经开始恨自己。", code: "SAVE" },
-      { text: "直接新建模板，连配色和冻结首行都安排好了。", code: "LIST" },
+      { text: "先抱走它，再抢救文档现场。", code: "CTRL" },
+      { text: "盯着那串乱码，怀疑它在通灵。", code: "LURK" },
+      { text: "发朋友：我家宠物开始办公了。", code: "MEME" },
+      { text: "想做宠物键盘防空系统。", code: "IDEA" },
     ],
   },
   {
     title: "聚餐突然冷场，所有人都开始低头看手机。",
     options: [
-      { text: "开个新话题，把这桌从停尸房拉回餐厅。", code: "SAVE" },
-      { text: "低头假装回消息，加入沉默互助会。", code: "MUTE" },
-      { text: "偷偷观察谁最先受不了冷场，像看真人实验。", code: "LURK" },
-      { text: "说：我们现在像一桌刚分手但还没分桌的人。", code: "MEME" },
-    ],
-  },
-  {
-    title: "你迟到 5 分钟，一推门所有人都看你。",
-    options: [
-      { text: "快速道歉，解释自己被红灯、电梯和命运联手背刺。", code: "CTRL" },
-      { text: "说：不好意思，堵在命运入口了。", code: "MEME" },
-      { text: "低头坐下，努力把自己降级成一件家具。", code: "MUTE" },
-      { text: "顺手递饮料，假装迟到是为了增加到场价值。", code: "OOPS" },
-    ],
-  },
-  {
-    title: "你在会议上被点名，但刚才完全走神。",
-    options: [
-      { text: "复述最后听到的三个词，拼成一句像结论的话。", code: "CTRL" },
-      { text: "低头翻资料，假装答案藏在屏幕深处。", code: "MUTE" },
-      { text: "说“这个问题可以分三层看”，先把时间拖住。", code: "LIST" },
-      { text: "胡说一个很像战略的句子，赌大家也没认真听。", code: "OOPS" },
+      { text: "主动开个新话题，把空气从冰箱捞出来。", code: "SAVE" },
+      { text: "也低头看手机，加入沉默互助会。", code: "MUTE" },
+      { text: "偷偷观察谁会第一个受不了冷场。", code: "LURK" },
+      { text: "说：这桌现在像低电量动物园。", code: "MEME" },
     ],
   },
   {
     title: "你看到一篇《普通人如何三个月逆袭》，标题很土但手指很诚实。",
     options: [
-      { text: "先收藏，献给未来那个可能会投胎成上进人的自己。", code: "IDEA" },
-      { text: "直接看评论区，那里才是人类翻车样本库。", code: "LURK" },
-      { text: "算课程价、时间成本、转化率，判断韭菜刀锋利程度。", code: "CTRL" },
-      { text: "转发给朋友：又有人三个月速通人生了。", code: "MEME" },
+      { text: "先收藏，献给未来那个上进版自己。", code: "IDEA" },
+      { text: "直接看评论区，整理真实人类样本。", code: "LIST" },
+      { text: "算课程价、时间成本，评价割韭菜刀锋利度。", code: "CTRL" },
+      { text: "转发给朋友：又有人三个月速通人生。", code: "MEME" },
+    ],
+  },
+  {
+    title: "你在会议上被点名，但刚才完全走神。",
+    options: [
+      { text: "复述最后听到的三个词，拼成结论。", code: "CTRL" },
+      { text: "低头翻资料，假装答案藏在屏幕里。", code: "MUTE" },
+      { text: "说“我先梳理一下”，把问题拆成三格。", code: "LIST" },
+      { text: "先点头说“对”，再等嘴自己施工。", code: "OOPS" },
+    ],
+  },
+  {
+    title: "你试了一件衣服，其实自己还没看明白，店员已经说：“这个真的很显气质，而且很适合你。”",
+    options: [
+      { text: "偷偷观察她是不是对谁都这么说。", code: "LURK" },
+      { text: "开始分析灯光、镜子、话术和价格。", code: "LIST" },
+      { text: "当场信了三秒，钱包开始松动。", code: "OOPS" },
+      { text: "想做一个“夸夸可信度评分 App”。", code: "IDEA" },
+    ],
+  },
+  {
+    title: "朋友说：“你看我前男/女友新发的朋友圈什么意思？”",
+    options: [
+      { text: "拆图片、文案、标点和发布时间。", code: "LURK" },
+      { text: "先劝他别过度解读，把人从悬崖边拉回。", code: "SAVE" },
+      { text: "列三种可能：暗示你、气别人、纯发疯。", code: "LIST" },
+      { text: "建议直接问本人，别让脑补非法施工。", code: "CTRL" },
+    ],
+  },
+  {
+    title: "快递柜还剩 3 小时过期，你已经躺下了。",
+    options: [
+      { text: "立刻起身，人生不能欠快递柜钱。", code: "CTRL" },
+      { text: "再躺五分钟，结果躺出一部连续剧。", code: "OOPS" },
+      { text: "想做一个小区代取互助组织。", code: "IDEA" },
+      { text: "问朋友能不能顺手捞我一命。", code: "SAVE" },
+    ],
+  },
+  {
+    title: "你刚在群里吐槽完一个人，突然发现 TA 也在这个群里。",
+    options: [
+      { text: "补一句：刚才是梦话，大家别存档。", code: "SAVE" },
+      { text: "撤回，像给案发现场盖白布。", code: "MUTE" },
+      { text: "发个表情包，试图把事故变成梗。", code: "OOPS" },
+      { text: "立刻检查群名单，给眼睛开会。", code: "LIST" },
     ],
   },
   {
     title: "你看到楼下空铺转让，门口还贴着“旺铺”。",
     options: [
-      { text: "算租金、人流、回本周期，越算越像验尸。", code: "CTRL" },
-      { text: "店名、菜单、开业海报已经在脑内试营业。", code: "IDEA" },
-      { text: "发朋友：这里适合开一家失败学咖啡馆。", code: "MEME" },
-      { text: "开始蹲隔壁店客流，像民间商业侦探。", code: "LURK" },
-    ],
-  },
-  {
-    title: "朋友说：“你看我对象新发的朋友圈什么意思？”",
-    options: [
-      { text: "拆图、文案、标点和发布时间，像做情感刑侦。", code: "LURK" },
-      { text: "劝他别过度解读，先把人从悬崖边薅回来。", code: "SAVE" },
-      { text: "列出三种可能性：普通发疯、暗示、真的没意思。", code: "LIST" },
-      { text: "顺藤摸瓜看对方最近三个月动态，越看越精神。", code: "LURK" },
-    ],
-  },
-  {
-    title: "前同事发朋友圈：“终于离开垃圾地方。”",
-    options: [
-      { text: "默默蹲评论区，看谁会第一个暴露内情。", code: "LURK" },
-      { text: "截图发小群：有瓜，先别睡。", code: "MEME" },
-      { text: "复盘最近组织架构、离职时间线和传闻可信度。", code: "LIST" },
-      { text: "点进点赞列表，看谁也在现场围观。", code: "LURK" },
-    ],
-  },
-  {
-    title: "凌晨两点，你突然想给一个很久没联系的人发消息。",
-    options: [
-      { text: "写好不发，放到明天接受阳光审判。", code: "CTRL" },
-      { text: "打开聊天记录一路考古，看到自己想换星球。", code: "LURK" },
-      { text: "直接发“突然想到你”，把剧情交给命运。", code: "OOPS" },
-      { text: "先看他最近动态，判断自己有没有出场资格。", code: "LURK" },
+      { text: "算租金、人流、回本周期，越算越冷。", code: "CTRL" },
+      { text: "店名、菜单、开业海报已经在脑内出生。", code: "IDEA" },
+      { text: "发朋友：这里适合开失败学咖啡馆。", code: "MEME" },
+      { text: "开始蹲隔壁客流，像民间商业侦探。", code: "LURK" },
     ],
   },
   {
     title: "你突然意识到自己今天什么都没干。",
     options: [
-      { text: "写一篇《今天为什么没干》的复盘，仪式感拉满。", code: "LIST" },
-      { text: "宣布这是低功耗修复日，不是摆烂，是系统维护。", code: "MEME" },
-      { text: "赶紧做一件小事，给今天强行续命。", code: "CTRL" },
-      { text: "开始翻别人今天干了什么，然后精准加重焦虑。", code: "LURK" },
+      { text: "写一篇《今天为什么没干》的复盘。", code: "LIST" },
+      { text: "宣布这是低功耗修复日，不是摆烂。", code: "MEME" },
+      { text: "做件小事，先把今天救回来。", code: "SAVE" },
+      { text: "开始制定明日补救方案，假装今天可结转。", code: "IDEA" },
+    ],
+  },
+  {
+    title: "凌晨三点，你家宠物突然开始跑酷、叫唤、扒门，像在开地下演唱会。",
+    options: [
+      { text: "装睡，假装这不是我的家。", code: "MUTE" },
+      { text: "起身排查：水、粮、厕所、阴谋。", code: "LIST" },
+      { text: "崩溃安抚，像给祖宗上夜班。", code: "SAVE" },
+      { text: "录下来发：家里闹钟长毛了。", code: "MEME" },
+    ],
+  },
+  {
+    title: "聚餐时你迟到 5 分钟，一推门所有人都看你。",
+    options: [
+      { text: "快速道歉，先把现场伤害降到最低。", code: "CTRL" },
+      { text: "说：不好意思，刚才被红灯劫持了。", code: "MEME" },
+      { text: "低头坐下，努力把自己降级成家具。", code: "MUTE" },
+      { text: "抢过服务员的菜上桌，假装自己有用。", code: "OOPS" },
+    ],
+  },
+  {
+    title: "凌晨两点，你突然想给前男/女友发消息。",
+    options: [
+      { text: "写好不发，放到明天接受阳光审判。", code: "CTRL" },
+      { text: "打开聊天记录考古，看到自己想换星球。", code: "LURK" },
+      { text: "直接发“突然想到你”，把剧情交给命运。", code: "OOPS" },
+      { text: "关掉手机，假装这段情绪没有出生。", code: "MUTE" },
+    ],
+  },
+  {
+    title: "你和刚认识的人聊天，突然同时找不到话题，只剩杯子很忙。",
+    options: [
+      { text: "主动开新话题，救一下快沉的船。", code: "SAVE" },
+      { text: "突然问他星座，把尴尬拐进玄学。", code: "OOPS" },
+      { text: "说：我们现在是不是进入加载界面了。", code: "MEME" },
+      { text: "想做一个尴尬自动续话机。", code: "IDEA" },
+    ],
+  },
+  {
+    title: "你在朋友圈发了一句很有深意的话，五分钟后觉得太装。",
+    options: [
+      { text: "删掉，像清理一场精神案发现场。", code: "MUTE" },
+      { text: "开始盯谁点赞，谁可能看懂了。", code: "LURK" },
+      { text: "补一句：刚才被月亮夺舍了。", code: "OOPS" },
+      { text: "改成“今日迷惑行为记录”，先自嘲保命。", code: "LIST" },
     ],
   },
 ];
@@ -345,7 +412,7 @@ function renderHome() {
           <small>(MaD-Type-Indicator)</small>
           <span>人格测试</span>
         </h2>
-        <p>12 个小场面，测出你脑内小剧场的默认发作方式。别装正常，正常人不会点进来。</p>
+        <p>16 个小场面，测出你脑内小剧场的默认发作方式。别装正常，正常人不会点进来。</p>
       </div>
 
       <div class="hero-warning">
@@ -457,25 +524,24 @@ function getPairedCode(primaryCode, options) {
 function renderResult() {
   const result = getFinalCode();
   const item = codes[result.code];
-  const shareText = makeShareText(result.code, item);
+  let displayedSample = recordSampleResult(result.code);
 
   screen.innerHTML = `
     <div class="screen-inner">
       <div class="result-grid">
         <article class="result-card result-${item.color}">
           <p class="eyebrow">OopsLab Result</p>
-          <div class="verdict-stamp">已鉴定：有点东西</div>
+          <div class="verdict-stamp">${item.stamp}</div>
           <div class="code-line">
             <div class="code-badge">${result.code}</div>
             <div class="ratio-badge ${item.rare ? "rare-tag" : ""}">
-              <span>样本占比</span>
-              <strong>${item.ratio}</strong>
-              <em>${item.rarity}</em>
+              <span>当前样本占比</span>
+              <strong id="sampleRatio">${displayedSample.ratio}</strong>
+              <em id="sampleDetail">${displayedSample.detail}</em>
             </div>
           </div>
           <h2 class="result-name">${item.name}</h2>
           <p class="one-liner">${item.oneLiner}</p>
-          <div class="meme-quote">“这不是性格问题，这是出厂风格。”</div>
 
           <div class="portrait-grid">
             <div class="portrait-card">
@@ -503,7 +569,7 @@ function renderResult() {
             <strong>${item.full}</strong>
           </div>
           <div class="report-item">
-            <span>被动触发时刻</span>
+            <span>触发时刻</span>
             <strong>${item.trigger}</strong>
           </div>
           <div class="report-item">
@@ -516,7 +582,11 @@ function renderResult() {
           </div>
           <div class="report-item charm-item">
             <span>${item.charmTitle}</span>
-            <strong>${item.charm}</strong>
+            <strong>${item.charmAction}</strong>
+            <div class="charm-lines">
+              <p><b>幸运物</b>${item.luckyItem}</p>
+              <p><b>今日忌讳</b>${item.dailyTaboo}</p>
+            </div>
           </div>
         </aside>
       </div>
@@ -529,9 +599,21 @@ function renderResult() {
     </div>
   `;
 
-  screen.querySelector("#copyButton").addEventListener("click", () => copyResult(shareText));
-  screen.querySelector("#copyImageButton").addEventListener("click", () => copyResultImage(result.code, item));
+  screen
+    .querySelector("#copyButton")
+    .addEventListener("click", () => copyResult(makeShareText(result.code, item, displayedSample)));
+  screen.querySelector("#copyImageButton").addEventListener("click", () => copyResultImage(result.code, item, displayedSample));
   screen.querySelector("#restartButton").addEventListener("click", renderHome);
+
+  syncPublicStats(result.code).then((publicSample) => {
+    if (!publicSample) return;
+
+    displayedSample = publicSample;
+    const ratioNode = screen.querySelector("#sampleRatio");
+    const detailNode = screen.querySelector("#sampleDetail");
+    if (ratioNode) ratioNode.textContent = publicSample.ratio;
+    if (detailNode) detailNode.textContent = publicSample.detail;
+  });
 }
 
 function getOptionTag(code) {
@@ -590,13 +672,132 @@ function getRankedCodes() {
     });
 }
 
-function makeShareText(code, item) {
+function readSampleStats() {
+  const stats = Object.fromEntries(Object.keys(codes).map((code) => [code, 0]));
+
+  try {
+    const raw = window.localStorage?.getItem(SAMPLE_STORAGE_KEY);
+    if (!raw) return stats;
+
+    const stored = JSON.parse(raw);
+    Object.keys(stats).forEach((code) => {
+      const value = Number(stored?.[code]);
+      stats[code] = Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
+    });
+  } catch {
+    return stats;
+  }
+
+  return stats;
+}
+
+function recordSampleResult(code) {
+  const stats = readSampleStats();
+  stats[code] = (stats[code] || 0) + 1;
+
+  try {
+    window.localStorage?.setItem(SAMPLE_STORAGE_KEY, JSON.stringify(stats));
+  } catch {
+    // 统计只是本机展示，存不了也不影响测试结果。
+  }
+
+  return makeSampleSummary(stats, code, "本机");
+}
+
+function makeSampleSummary(stats, code, scope) {
+  const total = Object.values(stats).reduce((sum, value) => sum + value, 0);
+  const count = stats[code] || 0;
+  const ratio = total > 0 ? formatPercent((count / total) * 100) : "0%";
+  const detail = total <= 1 ? `${scope}首份样本` : `${count}/${total} ${scope}样本`;
+
+  return { count, total, ratio, detail, scope };
+}
+
+function formatPercent(value) {
+  if (value >= 10 || value === 0 || value === 100) {
+    return `${Math.round(value)}%`;
+  }
+
+  return `${value.toFixed(1).replace(/\.0$/, "")}%`;
+}
+
+function makeCharmSummary(item) {
+  return `${item.charmAction} 幸运物：${item.luckyItem}｜今日忌讳：${item.dailyTaboo}`;
+}
+
+async function syncPublicStats(code) {
+  if (!STATS_API_BASE.trim()) return null;
+
+  try {
+    await postPublicResult(code);
+    return await fetchPublicStats(code);
+  } catch (error) {
+    console.warn("Public stats skipped:", error);
+    return null;
+  }
+}
+
+async function postPublicResult(code) {
+  const response = await fetchWithTimeout(makeStatsApiUrl("submit"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Submit failed: ${response.status}`);
+  }
+}
+
+async function fetchPublicStats(code) {
+  const response = await fetchWithTimeout(makeStatsApiUrl("stats"), {
+    method: "GET",
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Stats failed: ${response.status}`);
+  }
+
+  return normalizePublicStats(await response.json(), code);
+}
+
+function normalizePublicStats(data, code) {
+  const source = data?.counts || data?.results || data || {};
+  const stats = Object.fromEntries(
+    Object.keys(codes).map((key) => {
+      const value = Number(source[key]);
+      return [key, Number.isFinite(value) && value > 0 ? Math.floor(value) : 0];
+    }),
+  );
+
+  return makeSampleSummary(stats, code, "全站");
+}
+
+function makeStatsApiUrl(path) {
+  return `${STATS_API_BASE.trim().replace(/\/+$/, "")}/${path}`;
+}
+
+function fetchWithTimeout(url, options) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), STATS_TIMEOUT_MS);
+
+  return fetch(url, {
+    ...options,
+    cache: "no-store",
+    signal: controller.signal,
+  }).finally(() => window.clearTimeout(timeout));
+}
+
+function makeShareText(code, item, sample) {
   return `我的 MDTI 是 ${code}｜${item.name}
-样本占比：${item.ratio}（${item.rarity}）
+当前样本占比：${sample.ratio}（${sample.detail}）
 ${item.oneLiner}
 动物画像：${item.animalIcon} ${item.animalName}，${item.animalDesc}
 植物画像：${item.plantIcon} ${item.plantName}，${item.plantDesc}
-${item.charmTitle}：${item.charm}`;
+${item.charmTitle}：${item.charmAction}
+幸运物：${item.luckyItem}
+今日忌讳：${item.dailyTaboo}`;
 }
 
 async function copyResult(text) {
@@ -608,7 +809,7 @@ async function copyResult(text) {
   }
 }
 
-async function copyResultImage(code, item) {
+async function copyResultImage(code, item, sample) {
   const button = screen.querySelector("#copyImageButton");
   const originalText = button?.textContent || "复制结果图";
 
@@ -618,7 +819,7 @@ async function copyResultImage(code, item) {
       button.textContent = "生成中";
     }
 
-    const canvas = createResultCanvas(code, item);
+    const canvas = createResultCanvas(code, item, sample);
     const blob = await canvasToBlob(canvas);
 
     if (navigator.clipboard?.write && window.ClipboardItem) {
@@ -646,7 +847,7 @@ async function copyResultImage(code, item) {
   }
 }
 
-function createResultCanvas(code, item) {
+function createResultCanvas(code, item, sample) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1680;
@@ -708,14 +909,14 @@ function createResultCanvas(code, item) {
 
   drawText(ctx, "OOPSLAB RESULT", 124, 272, 24, 1000, softText);
   drawRoundedBox(ctx, 688, 258, 248, 62, 18, isRare ? yellow : white, ink, 5);
-  drawText(ctx, "已鉴定：有点东西", 716, 276, 25, 1000, ink);
+  drawText(ctx, item.stamp, 716, 276, 25, 1000, ink);
 
   drawRoundedBox(ctx, 124, 352, 302, 156, 18, isRare ? white : ink, ink, 5);
   drawCenteredText(ctx, code, 124, 374, 302, 96, 1000, isRare ? ink : white);
   drawRoundedBox(ctx, 456, 352, 250, 156, 18, white, ink, 5);
-  drawText(ctx, "样本占比", 486, 376, 24, 1000, muted);
-  drawText(ctx, item.ratio, 486, 414, 58, 1000, ink);
-  drawText(ctx, item.rarity, 486, 476, 22, 950, muted);
+  drawText(ctx, "当前样本占比", 486, 376, 22, 1000, muted);
+  drawText(ctx, sample.ratio, 486, 414, 58, 1000, ink);
+  drawText(ctx, sample.detail, 486, 476, 22, 950, muted);
 
   const nameSize = fitFontSize(ctx, item.name, 812, 96, 62, 1000);
   drawText(ctx, item.name, 124, 558, nameSize, 1000, cardText);
@@ -735,15 +936,262 @@ function createResultCanvas(code, item) {
 
   drawShareNote(ctx, 124, 1072, 824, "群众锐评", getRoastLine(code), red);
   drawShareNote(ctx, 124, 1172, 824, "朋友判词", item.friendVerdict, accentColor);
-  drawShareNote(ctx, 124, 1272, 824, item.charmTitle, item.charm, yellow);
+  drawShareNote(ctx, 124, 1272, 824, item.charmTitle, makeCharmSummary(item), yellow);
 
   drawText(ctx, `我的 MDTI 是 ${code}｜${item.name}`, 84, 1444, 34, 1000, ink);
-  drawWrappedText(ctx, "把这张图发出去，让朋友判断你到底是人格，还是事故现场。", 84, 1496, 720, 32, 24, 850, muted, 2);
-  drawRoundedBox(ctx, 858, 1486, 138, 82, 18, ink, ink, 4);
-  drawCenteredText(ctx, "MDTI", 858, 1502, 138, 36, 1000, white);
-  drawCenteredText(ctx, "OopsLab", 858, 1538, 138, 18, 900, "rgba(255, 253, 248, 0.78)");
+  drawWrappedText(ctx, "把这张图发出去，让朋友判断你到底是人格，还是事故现场。", 84, 1496, 690, 32, 24, 850, muted, 2);
+  drawQrBadge(ctx, 824, 1426, SHARE_URL, ink, white, muted);
 
   return canvas;
+}
+
+function drawQrBadge(ctx, x, y, url, ink, white, muted) {
+  drawCenteredText(ctx, "扫码来测", x, y - 30, 172, 22, 1000, muted);
+  drawRoundedBox(ctx, x, y, 172, 172, 18, white, ink, 4);
+  drawQrCode(ctx, url, x + 12, y + 12, 4, ink, white);
+}
+
+function drawQrCode(ctx, text, x, y, scale, dark, light) {
+  const modules = makeQrModules(text);
+
+  ctx.fillStyle = light;
+  ctx.fillRect(x, y, (modules.length + 8) * scale, (modules.length + 8) * scale);
+  ctx.fillStyle = dark;
+
+  modules.forEach((row, rowIndex) => {
+    row.forEach((value, colIndex) => {
+      if (value) {
+        ctx.fillRect(x + (colIndex + 4) * scale, y + (rowIndex + 4) * scale, scale, scale);
+      }
+    });
+  });
+}
+
+function makeQrModules(text) {
+  const version = 3;
+  const size = version * 4 + 17;
+  const dataCodewords = 55;
+  const errorCodewords = 15;
+  const mask = 0;
+  const modules = Array.from({ length: size }, () => Array(size).fill(false));
+  const reserved = Array.from({ length: size }, () => Array(size).fill(false));
+
+  const set = (x, y, value, isReserved = true) => {
+    if (x < 0 || y < 0 || x >= size || y >= size) return;
+    modules[y][x] = Boolean(value);
+    if (isReserved) reserved[y][x] = true;
+  };
+
+  addFinder(modules, reserved, 0, 0);
+  addFinder(modules, reserved, size - 7, 0);
+  addFinder(modules, reserved, 0, size - 7);
+  addAlignment(modules, reserved, 22, 22);
+  addTimingPatterns(modules, reserved);
+  set(8, size - 8, true);
+
+  const codewords = makeQrCodewords(text, dataCodewords, errorCodewords);
+  const bits = codewords.flatMap((byte) =>
+    Array.from({ length: 8 }, (_, index) => ((byte >>> (7 - index)) & 1) === 1),
+  );
+
+  let bitIndex = 0;
+  let upward = true;
+  for (let right = size - 1; right >= 1; right -= 2) {
+    if (right === 6) right -= 1;
+
+    for (let vertical = 0; vertical < size; vertical += 1) {
+      const y = upward ? size - 1 - vertical : vertical;
+
+      for (let offset = 0; offset < 2; offset += 1) {
+        const x = right - offset;
+        if (reserved[y][x]) continue;
+
+        const bit = bitIndex < bits.length ? bits[bitIndex] : false;
+        const masked = bit !== ((x + y) % 2 === mask);
+        set(x, y, masked, false);
+        bitIndex += 1;
+      }
+    }
+
+    upward = !upward;
+  }
+
+  addFormatBits(modules, reserved, mask);
+  return modules;
+}
+
+function addFinder(modules, reserved, left, top) {
+  const size = modules.length;
+  const set = (x, y, value) => {
+    if (x < 0 || y < 0 || x >= size || y >= size) return;
+    modules[y][x] = Boolean(value);
+    reserved[y][x] = true;
+  };
+
+  for (let y = -1; y <= 7; y += 1) {
+    for (let x = -1; x <= 7; x += 1) {
+      const xx = left + x;
+      const yy = top + y;
+      const isFinder =
+        x >= 0 && x <= 6 && y >= 0 && y <= 6 && (x === 0 || x === 6 || y === 0 || y === 6 || (x >= 2 && x <= 4 && y >= 2 && y <= 4));
+      set(xx, yy, isFinder);
+    }
+  }
+}
+
+function addAlignment(modules, reserved, centerX, centerY) {
+  for (let y = -2; y <= 2; y += 1) {
+    for (let x = -2; x <= 2; x += 1) {
+      const xx = centerX + x;
+      const yy = centerY + y;
+      modules[yy][xx] = Math.max(Math.abs(x), Math.abs(y)) !== 1;
+      reserved[yy][xx] = true;
+    }
+  }
+}
+
+function addTimingPatterns(modules, reserved) {
+  const size = modules.length;
+  for (let i = 8; i < size - 8; i += 1) {
+    const value = i % 2 === 0;
+    modules[6][i] = value;
+    modules[i][6] = value;
+    reserved[6][i] = true;
+    reserved[i][6] = true;
+  }
+}
+
+function addFormatBits(modules, reserved, mask) {
+  const size = modules.length;
+  const errorLevelL = 0b01;
+  const data = (errorLevelL << 3) | mask;
+  const bits = makeFormatBits(data);
+  const bit = (index) => ((bits >>> index) & 1) === 1;
+  const set = (x, y, value) => {
+    modules[y][x] = value;
+    reserved[y][x] = true;
+  };
+
+  for (let i = 0; i <= 5; i += 1) set(8, i, bit(i));
+  set(8, 7, bit(6));
+  set(8, 8, bit(7));
+  set(7, 8, bit(8));
+  for (let i = 9; i < 15; i += 1) set(14 - i, 8, bit(i));
+  for (let i = 0; i < 8; i += 1) set(size - 1 - i, 8, bit(i));
+  for (let i = 8; i < 15; i += 1) set(8, size - 15 + i, bit(i));
+  set(8, size - 8, true);
+}
+
+function makeFormatBits(data) {
+  let bits = data << 10;
+  const generator = 0x537;
+
+  for (let bit = highestBit(bits); bit >= 10; bit = highestBit(bits)) {
+    bits ^= generator << (bit - 10);
+  }
+
+  return ((data << 10) | bits) ^ 0x5412;
+}
+
+function makeQrCodewords(text, dataCodewords, errorCodewords) {
+  const bytes = Array.from(new TextEncoder().encode(text));
+  const bits = [];
+  appendBits(bits, 0b0100, 4);
+  appendBits(bits, bytes.length, 8);
+  bytes.forEach((byte) => appendBits(bits, byte, 8));
+
+  if (bits.length > dataCodewords * 8) {
+    throw new Error("QR content is too long.");
+  }
+
+  appendBits(bits, 0, Math.min(4, dataCodewords * 8 - bits.length));
+  while (bits.length % 8 !== 0) bits.push(false);
+
+  const data = [];
+  for (let i = 0; i < bits.length; i += 8) {
+    data.push(bitsToByte(bits.slice(i, i + 8)));
+  }
+
+  for (let pad = 0xec; data.length < dataCodewords; pad = pad === 0xec ? 0x11 : 0xec) {
+    data.push(pad);
+  }
+
+  return [...data, ...makeErrorCorrection(data, errorCodewords)];
+}
+
+function appendBits(bits, value, length) {
+  for (let i = length - 1; i >= 0; i -= 1) {
+    bits.push(((value >>> i) & 1) === 1);
+  }
+}
+
+function bitsToByte(bits) {
+  return bits.reduce((value, bit) => (value << 1) | (bit ? 1 : 0), 0);
+}
+
+function makeErrorCorrection(data, degree) {
+  const generator = makeGeneratorPolynomial(degree);
+  const result = Array(degree).fill(0);
+
+  data.forEach((byte) => {
+    const factor = byte ^ result.shift();
+    result.push(0);
+    generator.slice(1).forEach((coefficient, index) => {
+      result[index] ^= gfMultiply(coefficient, factor);
+    });
+  });
+
+  return result;
+}
+
+function makeGeneratorPolynomial(degree) {
+  let result = [1];
+  for (let i = 0; i < degree; i += 1) {
+    const next = [1, gfPow(i)];
+    const product = Array(result.length + 1).fill(0);
+
+    result.forEach((left, leftIndex) => {
+      next.forEach((right, rightIndex) => {
+        product[leftIndex + rightIndex] ^= gfMultiply(left, right);
+      });
+    });
+
+    result = product;
+  }
+  return result;
+}
+
+function gfMultiply(left, right) {
+  if (left === 0 || right === 0) return 0;
+  return gfPow(gfLog(left) + gfLog(right));
+}
+
+function gfPow(power) {
+  let value = 1;
+  for (let i = 0; i < power % 255; i += 1) {
+    value <<= 1;
+    if (value & 0x100) value ^= 0x11d;
+  }
+  return value;
+}
+
+function gfLog(value) {
+  let current = 1;
+  for (let i = 0; i < 255; i += 1) {
+    if (current === value) return i;
+    current <<= 1;
+    if (current & 0x100) current ^= 0x11d;
+  }
+  throw new Error("Invalid GF value.");
+}
+
+function highestBit(value) {
+  let bit = -1;
+  while (value > 0) {
+    value >>>= 1;
+    bit += 1;
+  }
+  return bit;
 }
 
 function drawDots(ctx) {

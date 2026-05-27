@@ -696,6 +696,34 @@ button:disabled {
   background: #fff3c9;
 }
 
+.charm-lines {
+  display: grid;
+  gap: 5px;
+}
+
+.charm-lines p {
+  margin: 0;
+  color: #3d4340;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.charm-lines b {
+  display: inline-block;
+  min-width: 64px;
+  margin-right: 7px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 7px 2px;
+  color: var(--ink);
+  background: var(--white);
+  font-size: 12px;
+  font-weight: 1000;
+  line-height: 1.25;
+  text-align: center;
+}
+
 .action-row {
   display: flex;
   flex-wrap: wrap;
