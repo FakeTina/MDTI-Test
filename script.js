@@ -467,7 +467,6 @@ function renderQuestion() {
               <button class="option-button" data-index="${index}">
                 <span>${String.fromCharCode(65 + index)}</span>
                 <strong>${option.text}</strong>
-                <em>${getOptionTag(option.code)}</em>
               </button>
             `,
           )
@@ -614,21 +613,6 @@ function renderResult() {
     if (ratioNode) ratioNode.textContent = publicSample.ratio;
     if (detailNode) detailNode.textContent = publicSample.detail;
   });
-}
-
-function getOptionTag(code) {
-  const tags = {
-    LIST: "开始做法",
-    MUTE: "原地消失",
-    LURK: "暗中观察",
-    MEME: "嘴先出警",
-    SAVE: "人情救火",
-    OOPS: "剧情升级",
-    IDEA: "项目孵化",
-    CTRL: "现场维修",
-    VOID: "离线漂浮",
-  };
-  return tags[code] || "未知路线";
 }
 
 function getRoastLine(code) {

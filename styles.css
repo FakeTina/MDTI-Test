@@ -391,7 +391,7 @@ button:disabled {
 
 .option-button {
   display: grid;
-  grid-template-columns: 42px 1fr auto;
+  grid-template-columns: 42px 1fr;
   gap: 14px;
   width: 100%;
   min-height: 76px;
@@ -424,19 +424,6 @@ button:disabled {
 .option-button strong {
   font-size: clamp(17px, 2.2vw, 21px);
   line-height: 1.38;
-}
-
-.option-button em {
-  justify-self: end;
-  border: 2px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 8px;
-  color: var(--ink);
-  background: #fff3c9;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 950;
-  white-space: nowrap;
 }
 
 .result-grid {
@@ -800,11 +787,6 @@ button:disabled {
   .option-button span {
     width: 32px;
     height: 32px;
-  }
-
-  .option-button em {
-    grid-column: 2;
-    justify-self: start;
   }
 
   .portrait-grid {
