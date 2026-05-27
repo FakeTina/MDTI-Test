@@ -1,4 +1,4 @@
-# MDTI (MaD-Type-Indicator) 人格测试
+# MDTI (Mad-Type-Indicator) 人格测试
 
 一个不太正经的人格测试小游戏，由 OopsLab 制作。
 
