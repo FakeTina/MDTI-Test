@@ -4,6 +4,8 @@ const SHARE_URL = "https://faketina.github.io/MDTI-Test/";
 const SAMPLE_STORAGE_KEY = "mdtiSampleStatsV1";
 const STATS_API_BASE = "https://coffee.cloud-ip.cc/mdti-api";
 const STATS_TIMEOUT_MS = 1800;
+let activePreviewImageUrl = "";
+let activePreviewClose = null;
 
 const codes = {
   LIST: {
@@ -593,6 +595,7 @@ function renderResult() {
       <div class="action-row">
         <button class="primary-button" id="copyButton">复制结果</button>
         <button class="secondary-button" id="copyImageButton">复制结果图</button>
+        <button class="secondary-button" id="previewImageButton">图片预览</button>
         <button class="secondary-button" id="restartButton">再测一次</button>
       </div>
     </div>
@@ -602,6 +605,7 @@ function renderResult() {
     .querySelector("#copyButton")
     .addEventListener("click", () => copyResult(makeShareText(result.code, item, displayedSample)));
   screen.querySelector("#copyImageButton").addEventListener("click", () => copyResultImage(result.code, item, displayedSample));
+  screen.querySelector("#previewImageButton").addEventListener("click", () => previewResultImage(result.code, item, displayedSample));
   screen.querySelector("#restartButton").addEventListener("click", renderHome);
 
   syncPublicStats(result.code).then((publicSample) => {
@@ -796,6 +800,7 @@ async function copyResult(text) {
 async function copyResultImage(code, item, sample) {
   const button = screen.querySelector("#copyImageButton");
   const originalText = button?.textContent || "复制结果图";
+  const fileName = makeResultImageFileName(code, item);
 
   try {
     if (button) {
@@ -812,13 +817,13 @@ async function copyResultImage(code, item, sample) {
         showToast("结果图已复制，去群里投放你的物种证据。");
         return;
       } catch {
-        downloadBlob(blob, `MDTI-${code}-${item.name}.png`);
+        downloadBlob(blob, fileName);
         showToast("浏览器没放行复制图片，已下载结果图。");
         return;
       }
     }
 
-    downloadBlob(blob, `MDTI-${code}-${item.name}.png`);
+    downloadBlob(blob, fileName);
     showToast("浏览器不支持复制图片，已下载结果图。");
   } catch (error) {
     console.error(error);
@@ -828,6 +833,98 @@ async function copyResultImage(code, item, sample) {
       button.disabled = false;
       button.textContent = originalText;
     }
+  }
+}
+
+async function previewResultImage(code, item, sample) {
+  const button = screen.querySelector("#previewImageButton");
+  const originalText = button?.textContent || "图片预览";
+  const fileName = makeResultImageFileName(code, item);
+
+  try {
+    if (button) {
+      button.disabled = true;
+      button.textContent = "生成中";
+    }
+
+    const canvas = createResultCanvas(code, item, sample);
+    const blob = await canvasToBlob(canvas);
+    const imageUrl = URL.createObjectURL(blob);
+    showImagePreview(imageUrl, blob, fileName);
+    showToast("图片已生成，长按预览图保存。");
+  } catch (error) {
+    console.error(error);
+    showToast("图片预览失败，先用截图保住证据。");
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+}
+
+function showImagePreview(imageUrl, blob, fileName) {
+  closeImagePreview();
+
+  const modal = document.createElement("div");
+  activePreviewImageUrl = imageUrl;
+  modal.className = "image-preview-modal";
+  modal.innerHTML = `
+    <div class="image-preview-panel" role="dialog" aria-modal="true" aria-label="结果图预览">
+      <div class="image-preview-head">
+        <div>
+          <span>结果图预览</span>
+          <strong>长按图片保存，或截图分享</strong>
+        </div>
+        <button class="preview-close" type="button" aria-label="关闭预览">×</button>
+      </div>
+      <div class="image-preview-scroll">
+        <img src="${imageUrl}" alt="MDTI 结果图" />
+      </div>
+      <div class="image-preview-actions">
+        <button class="primary-button image-preview-download" type="button">下载 PNG</button>
+        <button class="secondary-button image-preview-close" type="button">关闭</button>
+      </div>
+    </div>
+  `;
+
+  const close = () => {
+    modal.remove();
+    if (activePreviewImageUrl === imageUrl) {
+      URL.revokeObjectURL(imageUrl);
+      activePreviewImageUrl = "";
+    }
+    document.removeEventListener("keydown", handleKeydown);
+    if (activePreviewClose === close) {
+      activePreviewClose = null;
+    }
+  };
+  const handleKeydown = (event) => {
+    if (event.key === "Escape") close();
+  };
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) close();
+  });
+  modal.querySelector(".preview-close").addEventListener("click", close);
+  modal.querySelector(".image-preview-close").addEventListener("click", close);
+  modal.querySelector(".image-preview-download").addEventListener("click", () => downloadBlob(blob, fileName));
+  document.addEventListener("keydown", handleKeydown);
+  activePreviewClose = close;
+  document.body.append(modal);
+}
+
+function closeImagePreview() {
+  if (activePreviewClose) {
+    activePreviewClose();
+    return;
+  }
+
+  const existing = document.querySelector(".image-preview-modal");
+  if (existing) existing.remove();
+  if (activePreviewImageUrl) {
+    URL.revokeObjectURL(activePreviewImageUrl);
+    activePreviewImageUrl = "";
   }
 }
 
@@ -924,15 +1021,19 @@ function createResultCanvas(code, item, sample) {
 
   drawText(ctx, `我的 MDTI 是 ${code}｜${item.name}`, 84, 1444, 34, 1000, ink);
   drawWrappedText(ctx, "把这张图发出去，让朋友判断你到底是人格，还是事故现场。", 84, 1496, 690, 32, 24, 850, muted, 2);
-  drawQrBadge(ctx, 824, 1426, SHARE_URL, ink, white, muted);
+  drawQrBadge(ctx, 786, 1398, SHARE_URL, ink, white, muted);
 
   return canvas;
 }
 
 function drawQrBadge(ctx, x, y, url, ink, white, muted) {
-  drawCenteredText(ctx, "扫码来测", x, y - 30, 172, 22, 1000, muted);
-  drawRoundedBox(ctx, x, y, 172, 172, 18, white, ink, 4);
-  drawQrCode(ctx, url, x + 12, y + 12, 4, ink, white);
+  const badgeSize = 210;
+  const padding = 12;
+  const scale = 5;
+
+  drawCenteredText(ctx, "扫码来测", x, y - 30, badgeSize, 22, 1000, muted);
+  drawRoundedBox(ctx, x, y, badgeSize, badgeSize, 18, white, ink, 4);
+  drawQrCode(ctx, url, x + padding, y + padding, scale, ink, white);
 }
 
 function drawQrCode(ctx, text, x, y, scale, dark, light) {
@@ -972,6 +1073,7 @@ function makeQrModules(text) {
   addAlignment(modules, reserved, 22, 22);
   addTimingPatterns(modules, reserved);
   set(8, size - 8, true);
+  reserveFormatBits(reserved);
 
   const codewords = makeQrCodewords(text, dataCodewords, errorCodewords);
   const bits = codewords.flatMap((byte) =>
@@ -1002,6 +1104,24 @@ function makeQrModules(text) {
 
   addFormatBits(modules, reserved, mask);
   return modules;
+}
+
+function reserveFormatBits(reserved) {
+  const size = reserved.length;
+  const reserve = (x, y) => {
+    if (x >= 0 && y >= 0 && x < size && y < size) {
+      reserved[y][x] = true;
+    }
+  };
+
+  for (let i = 0; i <= 5; i += 1) reserve(8, i);
+  reserve(8, 7);
+  reserve(8, 8);
+  reserve(7, 8);
+  for (let i = 9; i < 15; i += 1) reserve(14 - i, 8);
+  for (let i = 0; i < 8; i += 1) reserve(size - 1 - i, 8);
+  for (let i = 8; i < 15; i += 1) reserve(8, size - 15 + i);
+  reserve(8, size - 8);
 }
 
 function addFinder(modules, reserved, left, top) {
@@ -1306,6 +1426,10 @@ function canvasToBlob(canvas) {
       reject(new Error("Canvas export failed."));
     }, "image/png");
   });
+}
+
+function makeResultImageFileName(code, item) {
+  return `MDTI-${code}-${item.name}.png`;
 }
 
 function downloadBlob(blob, fileName) {
