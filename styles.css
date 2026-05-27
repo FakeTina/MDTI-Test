@@ -353,8 +353,8 @@ button:disabled {
 .progress-row h2 {
   max-width: 790px;
   margin-top: 8px;
-  font-size: clamp(31px, 5.2vw, 64px);
-  line-height: 1.08;
+  font-size: clamp(27px, 4.4vw, 52px);
+  line-height: 1.12;
 }
 
 .progress-row > span {

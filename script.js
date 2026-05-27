@@ -2,7 +2,7 @@ const screen = document.querySelector("#screen");
 const toast = document.querySelector("#toast");
 const SHARE_URL = "https://faketina.github.io/MDTI-Test/";
 const SAMPLE_STORAGE_KEY = "mdtiSampleStatsV1";
-const STATS_API_BASE = "";
+const STATS_API_BASE = "https://coffee.cloud-ip.cc/mdti-api";
 const STATS_TIMEOUT_MS = 1800;
 
 const codes = {
@@ -211,147 +211,147 @@ const baseCodeKeys = Object.keys(codes).filter((code) => !codes[code].rare);
 
 const questions = [
   {
-    title: "你不小心给朋友发了一个只有你自己懂的怪表情包。",
-    options: [
-      { text: "立刻撤回，假装手机刚才梦游了。", code: "MUTE" },
-      { text: "不解释，观察他能不能自己悟道。", code: "LURK" },
-      { text: "顺势给它编一套世界观。", code: "IDEA" },
-      { text: "补一句：发错了，但你也可以懂。", code: "SAVE" },
-    ],
-  },
-  {
-    title: "你正认真打字，猫/狗突然踩上键盘，屏幕上出现一串神秘咒语。",
-    options: [
-      { text: "先抱走它，再抢救文档现场。", code: "CTRL" },
-      { text: "盯着那串乱码，怀疑它在通灵。", code: "LURK" },
-      { text: "发朋友：我家宠物开始办公了。", code: "MEME" },
-      { text: "想做宠物键盘防空系统。", code: "IDEA" },
-    ],
-  },
-  {
-    title: "聚餐突然冷场，所有人都开始低头看手机。",
-    options: [
-      { text: "主动开个新话题，把空气从冰箱捞出来。", code: "SAVE" },
-      { text: "也低头看手机，加入沉默互助会。", code: "MUTE" },
-      { text: "偷偷观察谁会第一个受不了冷场。", code: "LURK" },
-      { text: "说：这桌现在像低电量动物园。", code: "MEME" },
-    ],
-  },
-  {
-    title: "你看到一篇《普通人如何三个月逆袭》，标题很土但手指很诚实。",
-    options: [
-      { text: "先收藏，献给未来那个上进版自己。", code: "IDEA" },
-      { text: "直接看评论区，整理真实人类样本。", code: "LIST" },
-      { text: "算课程价、时间成本，评价割韭菜刀锋利度。", code: "CTRL" },
-      { text: "转发给朋友：又有人三个月速通人生。", code: "MEME" },
-    ],
-  },
-  {
     title: "你在会议上被点名，但刚才完全走神。",
     options: [
-      { text: "复述最后听到的三个词，拼成结论。", code: "CTRL" },
-      { text: "低头翻资料，假装答案藏在屏幕里。", code: "MUTE" },
-      { text: "说“我先梳理一下”，把问题拆成三格。", code: "LIST" },
-      { text: "先点头说“对”，再等嘴自己施工。", code: "OOPS" },
+      { text: "复述最后听到的三个词，拼成结论", code: "CTRL" },
+      { text: "低头翻资料，假装答案藏在屏幕里", code: "MUTE" },
+      { text: "说“我先梳理一下”，把问题拆成三格", code: "LIST" },
+      { text: "先点头说“对”，再等嘴自己施工", code: "OOPS" },
+    ],
+  },
+  {
+    title: "你不小心给朋友发了一个只有你自己懂的怪表情包。",
+    options: [
+      { text: "立刻撤回，假装手机刚才梦游了", code: "MUTE" },
+      { text: "不解释，观察他能不能自己悟道", code: "LURK" },
+      { text: "顺势宣布：这是小众文化内测版", code: "MEME" },
+      { text: "补一句：发错了，但你也可以懂", code: "SAVE" },
     ],
   },
   {
     title: "你试了一件衣服，其实自己还没看明白，店员已经说：“这个真的很显气质，而且很适合你。”",
     options: [
-      { text: "偷偷观察她是不是对谁都这么说。", code: "LURK" },
-      { text: "开始分析灯光、镜子、话术和价格。", code: "LIST" },
-      { text: "当场信了三秒，钱包开始松动。", code: "OOPS" },
-      { text: "想做一个“夸夸可信度评分 App”。", code: "IDEA" },
+      { text: "偷偷观察她是不是对谁都这么说", code: "LURK" },
+      { text: "开始分析灯光、镜子、话术和价格", code: "LIST" },
+      { text: "当场信了三秒，钱包开始松动", code: "OOPS" },
+      { text: "想做一个“夸夸可信度评分 App”", code: "IDEA" },
     ],
   },
   {
-    title: "朋友说：“你看我前男/女友新发的朋友圈什么意思？”",
+    title: "聚餐突然冷场，所有人都开始低头看手机。",
     options: [
-      { text: "拆图片、文案、标点和发布时间。", code: "LURK" },
-      { text: "先劝他别过度解读，把人从悬崖边拉回。", code: "SAVE" },
-      { text: "列三种可能：暗示你、气别人、纯发疯。", code: "LIST" },
-      { text: "建议直接问本人，别让脑补非法施工。", code: "CTRL" },
+      { text: "主动开个新话题，把空气从冰箱捞出来", code: "SAVE" },
+      { text: "也低头看手机，加入沉默互助会", code: "MUTE" },
+      { text: "偷偷观察谁会第一个受不了冷场", code: "LURK" },
+      { text: "说：这桌现在像低电量动物园", code: "MEME" },
     ],
   },
   {
     title: "快递柜还剩 3 小时过期，你已经躺下了。",
     options: [
-      { text: "立刻起身，人生不能欠快递柜钱。", code: "CTRL" },
-      { text: "再躺五分钟，结果躺出一部连续剧。", code: "OOPS" },
-      { text: "想做一个小区代取互助组织。", code: "IDEA" },
-      { text: "问朋友能不能顺手捞我一命。", code: "SAVE" },
+      { text: "立刻起身，人生不能欠快递柜钱", code: "CTRL" },
+      { text: "再躺五分钟，结果躺出一部连续剧", code: "OOPS" },
+      { text: "想做一个小区代取互助组织", code: "IDEA" },
+      { text: "问朋友能不能顺手捞我一命", code: "SAVE" },
     ],
   },
   {
-    title: "你刚在群里吐槽完一个人，突然发现 TA 也在这个群里。",
+    title: "朋友说：“你看我前男/女友新发的朋友圈什么意思？”",
     options: [
-      { text: "补一句：刚才是梦话，大家别存档。", code: "SAVE" },
-      { text: "撤回，像给案发现场盖白布。", code: "MUTE" },
-      { text: "发个表情包，试图把事故变成梗。", code: "OOPS" },
-      { text: "立刻检查群名单，给眼睛开会。", code: "LIST" },
+      { text: "拆图片、文案、标点和发布时间", code: "LURK" },
+      { text: "先劝他别过度解读，把人从悬崖边拉回", code: "SAVE" },
+      { text: "列三种可能：暗示你、气别人、纯发疯", code: "LIST" },
+      { text: "建议直接问本人，别让脑补非法施工", code: "CTRL" },
+    ],
+  },
+  {
+    title: "你正认真打字，猫/狗突然踩上键盘，屏幕上出现一串神秘咒语。",
+    options: [
+      { text: "先抱走它，再抢救文档现场", code: "CTRL" },
+      { text: "盯着那串乱码，怀疑它在通灵", code: "LURK" },
+      { text: "发朋友：我家宠物开始办公了", code: "MEME" },
+      { text: "想做宠物键盘防空系统", code: "IDEA" },
     ],
   },
   {
     title: "你看到楼下空铺转让，门口还贴着“旺铺”。",
     options: [
-      { text: "算租金、人流、回本周期，越算越冷。", code: "CTRL" },
-      { text: "店名、菜单、开业海报已经在脑内出生。", code: "IDEA" },
-      { text: "发朋友：这里适合开失败学咖啡馆。", code: "MEME" },
-      { text: "开始蹲隔壁客流，像民间商业侦探。", code: "LURK" },
+      { text: "算租金、人流、回本周期，越算越冷", code: "CTRL" },
+      { text: "店名、菜单、开业海报已经在脑内出生", code: "IDEA" },
+      { text: "发朋友：这里适合开失败学咖啡馆", code: "MEME" },
+      { text: "开始蹲隔壁客流，像民间商业侦探", code: "LURK" },
+    ],
+  },
+  {
+    title: "你刚在群里吐槽完一个人，突然发现 TA 也在这个群里。",
+    options: [
+      { text: "补一句：刚才是梦话，大家别存档", code: "SAVE" },
+      { text: "撤回，像给案发现场盖白布", code: "MUTE" },
+      { text: "发个表情包，试图把事故变成梗", code: "OOPS" },
+      { text: "立刻检查群名单，给眼睛开会", code: "LIST" },
     ],
   },
   {
     title: "你突然意识到自己今天什么都没干。",
     options: [
-      { text: "写一篇《今天为什么没干》的复盘。", code: "LIST" },
-      { text: "宣布这是低功耗修复日，不是摆烂。", code: "MEME" },
-      { text: "做件小事，先把今天救回来。", code: "SAVE" },
-      { text: "开始制定明日补救方案，假装今天可结转。", code: "IDEA" },
-    ],
-  },
-  {
-    title: "凌晨三点，你家宠物突然开始跑酷、叫唤、扒门，像在开地下演唱会。",
-    options: [
-      { text: "装睡，假装这不是我的家。", code: "MUTE" },
-      { text: "起身排查：水、粮、厕所、阴谋。", code: "LIST" },
-      { text: "崩溃安抚，像给祖宗上夜班。", code: "SAVE" },
-      { text: "录下来发：家里闹钟长毛了。", code: "MEME" },
+      { text: "写一篇《今天为什么没干》的复盘", code: "LIST" },
+      { text: "宣布这是低功耗修复日，不是摆烂", code: "MEME" },
+      { text: "赶紧做一件小事，给今天强行续命", code: "CTRL" },
+      { text: "开始制定明日补救方案，假装今天可结转", code: "IDEA" },
     ],
   },
   {
     title: "聚餐时你迟到 5 分钟，一推门所有人都看你。",
     options: [
-      { text: "快速道歉，先把现场伤害降到最低。", code: "CTRL" },
-      { text: "说：不好意思，刚才被红灯劫持了。", code: "MEME" },
-      { text: "低头坐下，努力把自己降级成家具。", code: "MUTE" },
-      { text: "抢过服务员的菜上桌，假装自己有用。", code: "OOPS" },
+      { text: "快速道歉，先把现场伤害降到最低", code: "CTRL" },
+      { text: "说：不好意思，刚才被红灯劫持了", code: "MEME" },
+      { text: "低头坐下，努力把自己降级成家具", code: "MUTE" },
+      { text: "抢过服务员的菜上桌，假装自己有用", code: "OOPS" },
     ],
   },
   {
-    title: "凌晨两点，你突然想给前男/女友发消息。",
+    title: "你看到一篇《普通人如何三个月逆袭》，标题很土但手指很诚实。",
     options: [
-      { text: "写好不发，放到明天接受阳光审判。", code: "CTRL" },
-      { text: "打开聊天记录考古，看到自己想换星球。", code: "LURK" },
-      { text: "直接发“突然想到你”，把剧情交给命运。", code: "OOPS" },
-      { text: "关掉手机，假装这段情绪没有出生。", code: "MUTE" },
+      { text: "先收藏，献给未来那个上进版自己", code: "IDEA" },
+      { text: "直接看评论区，那里才是真实人类样本", code: "LURK" },
+      { text: "算课程价、时间成本，评价割韭菜刀锋利度", code: "CTRL" },
+      { text: "转发给朋友：又有人三个月速通人生", code: "MEME" },
     ],
   },
   {
     title: "你和刚认识的人聊天，突然同时找不到话题，只剩杯子很忙。",
     options: [
-      { text: "主动开新话题，救一下快沉的船。", code: "SAVE" },
-      { text: "突然问他星座，把尴尬拐进玄学。", code: "OOPS" },
-      { text: "说：我们现在是不是进入加载界面了。", code: "MEME" },
-      { text: "想做一个尴尬自动续话机。", code: "IDEA" },
+      { text: "主动开新话题，救一下快沉的船", code: "SAVE" },
+      { text: "突然问他星座，把尴尬拐进玄学", code: "OOPS" },
+      { text: "说：我们现在是不是进入加载界面了", code: "MEME" },
+      { text: "想做一个尴尬自动续话机", code: "IDEA" },
+    ],
+  },
+  {
+    title: "凌晨两点，你突然想给前男/女友发消息。",
+    options: [
+      { text: "写好不发，放到明天接受阳光审判", code: "CTRL" },
+      { text: "打开聊天记录考古，看到自己想换星球", code: "LURK" },
+      { text: "直接发“突然想到你”，把剧情交给命运", code: "OOPS" },
+      { text: "关掉手机，假装这段情绪没有出生", code: "MUTE" },
+    ],
+  },
+  {
+    title: "凌晨三点，你家宠物突然开始跑酷、叫唤、扒门，像在开地下演唱会。",
+    options: [
+      { text: "装睡，假装这不是我的家", code: "MUTE" },
+      { text: "起身排查：水、粮、厕所、阴谋", code: "LIST" },
+      { text: "崩溃安抚，像给祖宗上夜班", code: "SAVE" },
+      { text: "录下来发：家里闹钟长毛了", code: "MEME" },
     ],
   },
   {
     title: "你在朋友圈发了一句很有深意的话，五分钟后觉得太装。",
     options: [
-      { text: "删掉，像清理一场精神案发现场。", code: "MUTE" },
-      { text: "开始盯谁点赞，谁可能看懂了。", code: "LURK" },
-      { text: "补一句：刚才被月亮夺舍了。", code: "OOPS" },
-      { text: "改成“今日迷惑行为记录”，先自嘲保命。", code: "LIST" },
+      { text: "删掉，像清理一场精神案发现场", code: "MUTE" },
+      { text: "开始盯谁点赞，谁可能看懂了", code: "LURK" },
+      { text: "补一句：刚才被月亮夺舍了", code: "MEME" },
+      { text: "改成“今日迷惑行为记录”，先自嘲保命", code: "LIST" },
     ],
   },
 ];
